@@ -1,0 +1,9 @@
+[Gedit Plugin]
+Loader=python
+Module=intelligent_text_completion
+IAge=2
+Name=Intelligent Text Completion
+Description=This plugin intelligently completes your input of tags, lists, brackets, comments and quotes
+Authors=Jens Nyman <nymanjens.nj@gmail.com>
+Copyright=Copyright (C) 2010 Jens Nyman
+Website=
