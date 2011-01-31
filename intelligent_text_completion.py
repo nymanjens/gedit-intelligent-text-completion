@@ -155,8 +155,8 @@ class IntelligentTextCompletionPlugin(gedit.Plugin):
                         if len(re.findall(check_char, line_after)) % 2 == 1:
                             continue
                     # don't add add_char if it is used around text
-                    non_text_left =  ' \t\n\r,=+*/:;.?!$&@%~<>\\(){}[]-"\''
-                    non_text_right = ' \t\n\r,=+*/:;.?!$&@%~<>\\)}]'
+                    non_text_left =  ' \t\n\r,=+*:;.?!$&@%~<(){}[]-"\''
+                    non_text_right = ' \t\n\r,=+*:;.?&@%~>)}]'
                     if not next_char and not check_char == "'":
                         # if we're just typing with nothing on the right,
                         # adding is OK as long as it isn't a "'".
@@ -193,7 +193,7 @@ class IntelligentTextCompletionPlugin(gedit.Plugin):
         if options.detectLists:
             if event.keyval == gtk.keysyms.Return:
                 # constants
-                list_bullets = ['* ', '- ', '$ ', '> ', '+ ']
+                list_bullets = ['* ', '- ', '$ ', '> ', '+ ', '~ ']
                 # cycle through all bullets
                 for bullet in list_bullets:
                     if len(preceding_line) >= whitespace_pos + len(bullet):
@@ -280,6 +280,9 @@ def get_closing_xml_tag(document):
     tags.reverse()
     closed = []
     for tag in tags:
+        # ignore special tags like <!-- --> and <!doctype ...>
+        if re.match(r'<!.*?>', tag):
+            continue
         # neutral tag
         if re.match(r'<.*?/>', tag):
             continue
