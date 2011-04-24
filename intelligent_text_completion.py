@@ -123,35 +123,66 @@ class IntelligentTextCompletionPlugin(gedit.Plugin):
             return False
         typed_char = typed_string
         
-        # do not complete if text is selected
+        # GLOBALS
+        open_close = {
+            '"': '"',
+            "'": "'",
+            '(': ')',
+            '{': '}',
+            '[': ']',
+        }
+        
+        ################### selected text ###################
         bounds = doc.get_selection_bounds()
-        if len(bounds):
+        if len(bounds) > 0:
+            # auto-close brackets and quotes
+            if options.closeBracketsAndQuotes:
+                for open, close in open_close.items():
+                    if typed_char == open:
+                        # get bounds data
+                        off1 = bounds[0].get_offset()
+                        off2 = bounds[1].get_offset()
+                        # add open char
+                        doc.place_cursor(bounds[0])
+                        doc.insert_at_cursor(open)
+                        # refresh cursor and move it
+                        cursor = doc.get_iter_at_mark(doc.get_insert())
+                        cursor.set_offset(cursor.get_offset() + (off2 - off1))
+                        doc.place_cursor(cursor)
+                        # add close char
+                        doc.insert_at_cursor(close)
+                        return True
             return False
+        
         ################### auto-close brackets and quotes ###################
         if options.closeBracketsAndQuotes:
-            open_close = {
-                '"': '"',
-                "'": "'",
-                '(': ')',
-                '{': '}',
-                '[': ']',
-            }
             for check_char, add_char in open_close.items():
                 # if character user is adding is the same as the one that
                 # is auto-generated, remove the auto generated char
                 if typed_char == add_char:
                     if not cursor.ends_line():
                         if next_char == add_char:
-                            doc.delete(cursor, next_char_pos)
-                            continue
+                            if check_char != add_char:
+                                # don't remove ) when it's probably not auto-generated
+                                preceding_check_chars = len(re.findall('\%s' % check_char, preceding_line))
+                                preceding_add_chars = len(re.findall('\%s' % add_char, preceding_line))
+                                following_check_chars = len(re.findall('\%s' % check_char, line_after))
+                                following_add_chars = len(re.findall('\%s' % add_char, line_after))
+                                if preceding_check_chars - preceding_add_chars > following_add_chars:
+                                    continue
+                                # don't remove ) when the line becomes complex
+                                if following_check_chars > 0:
+                                    continue
+                        doc.delete(cursor, next_char_pos)
+                        continue
                 # typed_char equals char we're looking for
                 if typed_char == check_char:
                     # check for unlogical adding
                     if check_char == add_char:
-                        # uneven number of add_char's in front
+                        # uneven number of check_char's in front
                         if len(re.findall(check_char, preceding_line)) % 2 == 1:
                             continue
-                        # uneven number of add_char's in back
+                        # uneven number of check_char's in back
                         if len(re.findall(check_char, line_after)) % 2 == 1:
                             continue
                     # don't add add_char if it is used around text
