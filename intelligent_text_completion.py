@@ -173,8 +173,8 @@ class IntelligentTextCompletionPlugin(gedit.Plugin):
                                 # don't remove ) when the line becomes complex
                                 if following_check_chars > 0:
                                     continue
-                        doc.delete(cursor, next_char_pos)
-                        continue
+                            doc.delete(cursor, next_char_pos)
+                            return False
                 # typed_char equals char we're looking for
                 if typed_char == check_char:
                     # check for unlogical adding
