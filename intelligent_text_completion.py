@@ -314,6 +314,9 @@ def get_closing_xml_tag(document):
         # ignore special tags like <!-- --> and <!doctype ...>
         if re.match(r'<!.*?>', tag):
             continue
+        # ignore special tags like <?, <?=, <?php
+        if re.match(r'<\?.*?>', tag):
+            continue
         # neutral tag
         if re.match(r'<.*?/>', tag):
             continue
