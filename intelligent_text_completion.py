@@ -369,15 +369,16 @@ class Options(gobject.GObject):
         client = gconf.client_get_default()        
         if not client.dir_exists(self.__gconfDir):
             client.add_dir(self.__gconfDir,gconf.CLIENT_PRELOAD_NONE)
-
-        # get the gconf keys, or stay with default if key not set
-        try:
-            self.closeBracketsAndQuotes = client.get_bool(self.__gconfDir+"/closeBracketsAndQuotes")
-            self.completeXML = client.get_bool(self.__gconfDir+"/completeXML")
-            self.detectLists = client.get_bool(self.__gconfDir+"/detectLists")
-            self.autoindentAfterFunctionOrList = client.get_bool(self.__gconfDir+"/autoindentAfterFunctionOrList")
-        except Exception, e: # catch, just in case
-            print e
+        
+        if client.dir_exists(self.__gconfDir+"/closeBracketsAndQuotes"):
+            # get the gconf keys, or stay with default if key not set
+            try:
+                self.closeBracketsAndQuotes = client.get_bool(self.__gconfDir+"/closeBracketsAndQuotes")
+                self.completeXML = client.get_bool(self.__gconfDir+"/completeXML")
+                self.detectLists = client.get_bool(self.__gconfDir+"/detectLists")
+                self.autoindentAfterFunctionOrList = client.get_bool(self.__gconfDir+"/autoindentAfterFunctionOrList")
+            except Exception, e: # catch, just in case
+                print e
     def __del__(self):
         # write changes to gconf
         client = gconf.client_get_default()
