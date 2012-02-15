@@ -86,7 +86,7 @@ class IntelligentTextCompletionPlugin(GObject.Object, Gedit.WindowActivatable):
         # get cursor
         cursor = doc.get_iter_at_mark(doc.get_insert())
         # get typed string
-        typed_string = unicode(event.string)
+        typed_string = unicode(event.string, 'UTF-8')
         # get previous char
         prev_char = None
         if not cursor.get_line_offset() == 0:
@@ -156,7 +156,7 @@ class IntelligentTextCompletionPlugin(GObject.Object, Gedit.WindowActivatable):
         ################### auto-close brackets and quotes ###################
         if options.closeBracketsAndQuotes:
             """ detect python comments """
-            if typed_char == '"' and re.search('^[^"]*""', preceding_line) and cursor.ends_line():
+            if typed_char == '"' and re.search('^[^"]*""$', preceding_line) and cursor.ends_line():
                 return self._insert_at_cursor(typed_char + ' ', ' """')
             
             for check_char, add_char in open_close.items():
