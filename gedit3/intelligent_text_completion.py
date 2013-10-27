@@ -29,13 +29,12 @@ class IntelligentTextCompletionPlugin(GObject.Object, Gedit.WindowActivatable):
         """Connect to view's editing signals."""
         callback = self._on_view_key_press_event
         id = view.connect("key-press-event", callback, window)
-        view.set_data(self.__class__.__name__, (id))
+        view.intelligent_text_completion_id = id
 
     def _on_window_tab_added(self, window, tab):
         """Connect to signals of the document and view in tab."""
-        name = self.__class__.__name__
         view = tab.get_view()
-        handler_id = view.get_data(name)
+        handler_id = getattr(view, 'intelligent_text_completion_id', None)
         if handler_id is None:
             self._connect_view(view, window)
 
@@ -49,7 +48,7 @@ class IntelligentTextCompletionPlugin(GObject.Object, Gedit.WindowActivatable):
         id_1 = window.connect("tab-added", callback)
         callback = self._on_window_tab_removed
         id_2 = window.connect("tab-removed", callback)
-        window.set_data(self.__class__.__name__, (id_1, id_2))
+        window.intelligent_text_completion_id = (id_1, id_2)
         views = window.get_views()
         for view in views:
             self._connect_view(view, window)
@@ -60,11 +59,10 @@ class IntelligentTextCompletionPlugin(GObject.Object, Gedit.WindowActivatable):
         widgets = [window]
         widgets.extend(window.get_views())
         widgets.extend(window.get_documents())
-        name = self.__class__.__name__
         for widget in widgets:
-            for handler_id in widget.get_data(name):
+            for handler_id in getattr(widget, 'intelligent_text_completion_id', []):
                 widget.disconnect(handler_id)
-            widget.set_data(name, None)
+            widget.intelligent_text_completion_id = None
 
     def _on_view_key_press_event(self, view, event, window):
         doc = window.get_active_document()
@@ -154,7 +152,7 @@ class IntelligentTextCompletionPlugin(GObject.Object, Gedit.WindowActivatable):
             return False
         
         ################### auto-close brackets and quotes ###################
-        if options.closeBracketsAndQuotes:
+        if options.closeBracketsAndQuotes and prev_char != '\\':
             """ detect python comments """
             if typed_char == '"' and re.search('^[^"]*""$', preceding_line) and cursor.ends_line():
                 return self._insert_at_cursor(typed_char + ' ', ' """')
