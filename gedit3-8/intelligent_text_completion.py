@@ -220,6 +220,17 @@ class IntelligentTextCompletionPlugin(GObject.Object, Gedit.WindowActivatable, P
                 else:
                     return False # do nothing
 
+        ################### auto-complete django tags ###################
+        if options.completeXML: # TODO: make separate setting for this
+            if prev_char == "{" and typed_char == "%":
+                # insert code
+                self._insert_at_cursor("%  %")
+                # refresh cursor and move it to the middle
+                cursor = doc.get_iter_at_mark(doc.get_insert())
+                cursor.set_offset(cursor.get_offset() - 2)
+                doc.place_cursor(cursor)
+                return True
+
         ################### detect lists ###################
         if options.detectLists:
             if event.keyval == 65293: # return
