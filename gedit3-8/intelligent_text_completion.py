@@ -222,6 +222,15 @@ class IntelligentTextCompletionPlugin(GObject.Object, Gedit.WindowActivatable, P
 
         ################### auto-complete django tags ###################
         if options.completeXML: # TODO: make separate setting for this
+            if typed_char == "{":
+                # The normal opening and closing paradigm does not autocomplete
+                # for instance <a href="{{ url }}"> becase {{ url }} is inside
+                # of a sequence preventing autoclosing of brackets.
+                # We fix that here...
+                if next_char in open_close.values():
+                    # The next character has prevented a proper closing } from
+                    # being inserted
+                    return self._insert_at_cursor(typed_char, "}")
             if prev_char == "{" and typed_char == "%":
                 # insert code
                 self._insert_at_cursor("%  %")
