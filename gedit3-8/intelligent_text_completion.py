@@ -300,7 +300,11 @@ class IntelligentTextCompletionPlugin(GObject.Object, Gedit.WindowActivatable, P
                             add_middle = typed_char + whitespace + get_tab_string(view)
                             add_end = ""
                         return self._insert_at_cursor(add_middle, add_end)
-
+            if typed_char == '}':
+                if preceding_line and preceding_line.isspace():
+                    whitespace_pos_iter = cursor.copy()
+                    whitespace_pos_iter.set_line_offset(whitespace_pos)
+                    return self._remove_at_cursor(whitespace_pos_iter) and self._insert_at_cursor("}")
 
     def _insert_at_cursor(self, middle, end = ""):
         window = self.window
@@ -312,6 +316,10 @@ class IntelligentTextCompletionPlugin(GObject.Object, Gedit.WindowActivatable, P
         doc.place_cursor(cursor)
         return True
 
+    def _remove_at_cursor(self, pos):
+        window = self.window
+        doc = window.get_active_document()
+        return doc.backspace(pos, False, True)
 
 ##### regular functions #####
 
@@ -465,4 +473,3 @@ class IntelligentTextCompletionOptions(object):
     def _load_setting(self, setting_name):
         return True
         #return self._gconf_client.get_bool("{}/{}".format(self._GCONF_SETTINGS_DIR, setting_name))
-
