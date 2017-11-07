@@ -27,7 +27,7 @@ This plugin tries to make your life more comfortable by automatically adding tex
   1. Go to Edit->Preferences->Plugins and check the box for Intelligent Text Completion
 
 ### Similar plugins
-I bundled some similar plugins in [this project](http://code.google.com/p/gedit-improving-plugins/).
+I bundled some similar plugins in [this project](https://github.com/nymanjens/gedit-improving-plugins).
 
 ## Demo
 [See video on youtube.](http://www.youtube.com/watch?v=67OINBPOOis)
